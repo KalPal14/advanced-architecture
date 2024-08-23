@@ -1,0 +1,1 @@
+Domain models, events и всё чсто с этим связано
