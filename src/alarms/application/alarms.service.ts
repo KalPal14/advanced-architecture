@@ -1,13 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAlarmCommend } from './commands/create-alarm.command';
+import { CreateAlarmCommand } from './commands/create-alarm.command';
+import { AlarmRepository } from './ports/alarm.repository';
+import { AlarmFactory } from '../domain/factories/alarm.factory';
 
 @Injectable()
 export class AlarmsService {
-  create(createAlarmDto: CreateAlarmCommend) {
-    return 'This action adds a new alarm';
+  constructor(
+    private readonly alarmRepository: AlarmRepository,
+    private readonly alarmFactory: AlarmFactory,
+  ) {}
+
+  create({ name, severity }: CreateAlarmCommand) {
+    const alarm = this.alarmFactory.create(name, severity);
+    return this.alarmRepository.save(alarm);
   }
 
   findAll() {
-    return `This action returns all alarms`;
+    return this.alarmRepository.findAll();
   }
 }
