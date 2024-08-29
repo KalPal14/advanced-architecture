@@ -8,8 +8,10 @@ export class AlarmsController {
   constructor(private readonly alarmsService: AlarmsService) {}
 
   @Post()
-  create(@Body() { name, severity }: CreateAlarmDto) {
-    return this.alarmsService.create(new CreateAlarmCommand(name, severity));
+  create(@Body() { name, severity, treggeredAt, items }: CreateAlarmDto) {
+    return this.alarmsService.create(
+      new CreateAlarmCommand(name, severity, treggeredAt, items),
+    );
   }
 
   @Get()

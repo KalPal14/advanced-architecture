@@ -1,17 +1,47 @@
 import { Module } from '@nestjs/common';
-import { AlarmRepository } from 'src/alarms/application/ports/alarm.repository';
-import { OrmAlarmsRepository } from './repositories/alarms.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AlarmEntity } from './entities/alarm.entity';
+import { AlarmItemEntity } from './entities/alarm-item.entity';
+import { CreateAlarmRepository } from 'src/alarms/application/ports/create-alarm.repository';
+import { FindAlarmsRepository } from 'src/alarms/application/ports/find-alarms.repository';
+import { UpsertMaterializedAlarmRepository } from 'src/alarms/application/ports/upsert-materialized-alarm.repository';
+import { OrmCreateAlarmRepository } from './repositories/create-alarm.repository';
+import { OrmFindAlarmsRepository } from './repositories/find-alarms.repository';
+import { OrmUpsertMaterializedAlarmRepository } from './repositories/unsert-materialized-alarm.repository';
+import { MongooseModule } from '@nestjs/mongoose';
+import {
+  MaterializedAlarmView,
+  MaterializedAlarmViewSchema,
+} from './schemas/materialized-alarm-view.schema';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AlarmEntity])],
+  imports: [
+    TypeOrmModule.forFeature([AlarmEntity, AlarmItemEntity]),
+    MongooseModule.forFeature([
+      { name: MaterializedAlarmView.name, schema: MaterializedAlarmViewSchema },
+    ]),
+  ],
   providers: [
+    OrmCreateAlarmRepository,
+    OrmFindAlarmsRepository,
+    OrmUpsertMaterializedAlarmRepository,
     {
-      provide: AlarmRepository,
-      useClass: OrmAlarmsRepository,
+      provide: CreateAlarmRepository,
+      useClass: OrmCreateAlarmRepository,
+    },
+    {
+      provide: FindAlarmsRepository,
+      useClass: OrmFindAlarmsRepository,
+    },
+    {
+      provide: UpsertMaterializedAlarmRepository,
+      useClass: OrmUpsertMaterializedAlarmRepository,
     },
   ],
-  exports: [AlarmRepository],
+  exports: [
+    CreateAlarmRepository,
+    FindAlarmsRepository,
+    UpsertMaterializedAlarmRepository,
+  ],
 })
 export class OrmPersistenceModule {}
